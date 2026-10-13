@@ -1,0 +1,25 @@
+appId: local.focal.desktop
+productName: focal
+asar: false
+directories:
+  output: desktop-release
+files:
+  - dist/**/*
+  - server/**/*
+  - scripts/start.mjs
+  - scripts/transcribe.py
+  - desktop/**/*
+  - '!desktop/local.json'
+  - package.json
+win:
+  target:
+    - nsis
+    - dir
+  signAndEditExecutable: false
+npmRebuild: false
+
+nsis:
+  oneClick: false
+  perMachine: false
+  allowToChangeInstallationDirectory: true
+  deleteAppDataOnUninstall: false
