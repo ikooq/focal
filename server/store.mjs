@@ -12,6 +12,7 @@ import { DatabaseSync } from 'node:sqlite';
 import { randomUUID } from 'node:crypto';
 import { mkdirSync, readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
+import { tmpdir } from 'node:os';
 import { migrate } from './migrations.mjs';
 import { plannerActions } from './planner.mjs';
 import { lifeActions } from './life-actions.mjs';
@@ -575,7 +576,7 @@ export function createStore(path, clock = () => Date.now()) {
   function backup() {
     reconcile();
     const folder = join(
-      path === ':memory:' ? 'data' : dirname(path),
+      path === ':memory:' ? join(tmpdir(), 'focal-memory') : dirname(path),
       'backups',
     );
     mkdirSync(folder, { recursive: true });

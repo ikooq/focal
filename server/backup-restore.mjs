@@ -2,6 +2,7 @@ import { DatabaseSync } from 'node:sqlite';
 import { randomUUID } from 'node:crypto';
 import { mkdirSync, readFileSync, writeFileSync, rmSync } from 'node:fs';
 import { dirname, join, isAbsolute } from 'node:path';
+import { tmpdir } from 'node:os';
 import { migrate } from './migrations.mjs';
 import { validateTaskGraph } from './workflow.mjs';
 export function backupRestore({
@@ -74,7 +75,7 @@ export function backupRestore({
     )
       fail('Выберите резервную копию SQLite размером до 50 МБ.');
     const folder = join(
-      path === ':memory:' ? 'data' : dirname(path),
+      path === ':memory:' ? join(tmpdir(), 'focal-memory') : dirname(path),
       'restore-staging',
     );
     mkdirSync(folder, { recursive: true });
