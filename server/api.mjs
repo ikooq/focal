@@ -47,12 +47,16 @@ export function localApi(path) {
           return send(403, { error: 'Запрос с другого сайта запрещен.' });
         try {
           const url = new URL(req.url, 'http://localhost');
-          const read = async (max) => {
+          const read = async (
+            max,
+            message = 'Слишком большой файл или запрос.',
+          ) => {
             const chunks = [];
             let size = 0;
             for await (const chunk of req) {
               size += chunk.length;
-              if (size > max) throw Error('Слишком большой файл или запрос.');
+              if (size > max)
+                throw Object.assign(Error(message), { status: 413 });
               chunks.push(Buffer.from(chunk));
             }
             return Buffer.concat(chunks);
@@ -126,7 +130,7 @@ export function localApi(path) {
                 : await assistant(input, store.snapshot()),
             );
           }
-          if (req.method === 'GET' && req.url === '/backup') {
+          if (req.method === 'GET' && url.pathname === '/backup') {
             const backup = store.backup();
             res.setHeader('Content-Type', 'application/vnd.sqlite3');
             res.setHeader(
@@ -136,7 +140,7 @@ export function localApi(path) {
             res.end(backup.bytes);
             return;
           }
-          if (req.method === 'GET' && req.url === '/state') {
+          if (req.method === 'GET' && url.pathname === '/state') {
             const etag =
               '"' +
               createHash('sha256').update(store.revision()).digest('hex') +
@@ -148,40 +152,29 @@ export function localApi(path) {
             }
             return send(200, store.snapshot());
           }
-          if (req.method === 'POST' && req.url === '/restore/preview') {
+          if (req.method === 'POST' && url.pathname === '/restore/preview') {
             if (
               !req.headers['content-type']?.startsWith(
                 'application/octet-stream',
               )
             )
               return send(415, { error: 'Ожидается файл SQLite.' });
-            const chunks = [];
-            let size = 0;
-            for await (const chunk of req) {
-              const bytes = Buffer.from(chunk);
-              size += bytes.length;
-              if (size > 50 * 1024 * 1024)
-                return send(413, {
-                  error: 'Максимальный размер копии — 50 МБ.',
-                });
-              chunks.push(bytes);
-            }
-            return send(200, store.inspectBackup(Buffer.concat(chunks)));
+            return send(
+              200,
+              store.inspectBackup(
+                await read(
+                  50 * 1024 * 1024,
+                  'Максимальный размер копии — 50 МБ.',
+                ),
+              ),
+            );
           }
-          if (req.method === 'POST' && req.url === '/action') {
+          if (req.method === 'POST' && url.pathname === '/action') {
             if (!req.headers['content-type']?.startsWith('application/json'))
               return send(415, { error: 'Ожидается JSON.' });
-            const chunks = [];
-            let size = 0;
-            for await (const chunk of req) {
-              const bytes = Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk);
-              size += bytes.length;
-              chunks.push(bytes);
-              if (size > 250000)
-                return send(413, { error: 'Слишком большой запрос.' });
-            }
-            const body = Buffer.concat(chunks).toString('utf8');
-            const input = JSON.parse(body);
+            const input = JSON.parse(
+              (await read(250000, 'Слишком большой запрос.')).toString('utf8'),
+            );
             return send(
               200,
               input?.action === 'backup.restore'
@@ -191,7 +184,7 @@ export function localApi(path) {
           }
           send(404, { error: 'Не найдено.' });
         } catch (e) {
-          send(400, {
+          send(e?.status ?? 400, {
             error: e instanceof Error ? e.message : 'Не удалось сохранить.',
           });
         }

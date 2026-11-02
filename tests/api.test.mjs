@@ -103,6 +103,14 @@ test('HTTP flow preserves Unicode, previews SQLite restore, rejects foreign orig
     });
     assert.equal(invalid.status, 400);
     await invalid.text();
+    const oversized = await fetch(origin + '/api/action', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Origin: origin },
+      body: JSON.stringify({ action: 'note.save', body: 'x'.repeat(260000) }),
+    });
+    assert.equal(oversized.status, 413);
+    assert.equal((await oversized.json()).error, 'Слишком большой запрос.');
+    assert.equal((await fetch(origin + '/api/state?fresh=1')).status, 200);
   } finally {
     await new Promise((resolve) => server.close(resolve));
     rmSync(folder, { recursive: true, force: true, maxRetries: 3 });
