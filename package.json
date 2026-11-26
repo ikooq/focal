@@ -59,5 +59,8 @@
   "type": "module",
   "main": "desktop/main.mjs",
   "description": "focal — локальное пространство для фокуса, планов и заметок",
-  "author": "focal"
+  "author": "focal",
+  "overrides": {
+    "fflate": "0.7.5"
+  }
 }
