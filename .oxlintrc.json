@@ -44,7 +44,28 @@
     "react/display-name": "error",
     "react/jsx-no-comment-textnodes": "error",
     "react/no-unescaped-entities": "error",
-    "react/react-compiler": "error",
+    "react/capitalized-calls": "error",
+    "react/error-boundaries": "error",
+    "react/exhaustive-effect-dependencies": "warn",
+    "react/globals": "error",
+    "react/hooks": "error",
+    "react/immutability": "error",
+    "react/incompatible-library": "error",
+    "react/invariant": "error",
+    "react/memo-dependencies": "error",
+    "react/no-deriving-state-in-effects": "error",
+    "react/preserve-manual-memoization": "error",
+    "react/purity": "error",
+    "react/refs": "error",
+    "react/rule-suppression": "error",
+    "react/set-state-in-effect": "error",
+    "react/set-state-in-render": "error",
+    "react/static-components": "error",
+    "react/syntax": "error",
+    "react/todo": "off",
+    "react/unsupported-syntax": "error",
+    "react/use-memo": "error",
+    "react/void-use-memo": "error",
     "react/require-render-return": "error",
     "react/rules-of-hooks": "error",
     "typescript/ban-ts-comment": "error",
@@ -58,7 +79,9 @@
   },
   "overrides": [
     {
-      "files": ["tests/**/*.mjs"],
+      "files": [
+        "tests/**/*.mjs"
+      ],
       "rules": {
         "typescript/no-floating-promises": "off"
       }
