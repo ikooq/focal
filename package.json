@@ -61,6 +61,12 @@
   "description": "focal — локальное пространство для фокуса, планов и заметок",
   "author": "focal",
   "overrides": {
-    "fflate": "0.7.5"
+    "fflate": "0.7.5",
+    "app-builder-lib": {
+      "minimatch": "11.0.9"
+    },
+    "@electron/universal": {
+      "minimatch": "11.0.9"
+    }
   }
 }
