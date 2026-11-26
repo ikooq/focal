@@ -68,7 +68,8 @@ jobs:
         run: npm run build
 
       - name: Package for Windows
-        run: npm run desktop:build
+        # electron-builder publishes to GitHub on CI unless told not to.
+        run: npm run desktop:build -- --publish never
 
       - name: Smoke-test the packaged app
         run: npm run test:desktop
